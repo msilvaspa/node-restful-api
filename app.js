@@ -5,6 +5,8 @@ const logger = require('logger').createLogger();
 const app = express();
 const Times = require('./models/times');
 
+module.exports = app;
+
 mongoose.connect('mongodb://127.0.0.1/api', (err) => {
   if (err) console.log('erro conexao com mongo: ', err);
 });
