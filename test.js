@@ -1,12 +1,22 @@
 const assert = require('chai');
 const request = require('supertest');
-const app = require('./app');
+const express = require('express');
+const app = express();
 
 describe('Testes de API', () => {
 
-  describe('/', () => {
-    it('deve exibir no console as boas vindas', () => {
-      console.log('well done');
+  describe('/api', () => {
+    it.only('deve receber objeto com nome "teste"', () => {
+      const expected = { nome: 'teste' };
+
+      return request(app)
+        .get('/api')
+        .expect(200)
+        .then((res, err) => {
+          if(err){
+            console.log(err);
+          }
+        });
     });
   });
 
