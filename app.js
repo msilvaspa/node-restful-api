@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const chalk = require('chalk');
 const logger = require('logger').createLogger();
 const app = express();
 const Times = require('./models/times');
@@ -17,17 +18,24 @@ const PORT = 3000;
 
 const router = express.Router();
 
-router.get('/', (req, res) => {
-  logger.info('Rota principal OK');
-  console.log('wellcome to my API :D');
-  res.json({ nome: "teste" });
-});
+const printErr = (err) => {
+  const log = console.log;
+  log(chalk.yellow.bgRed.bold(`${err}`));
+};
+
+router.route('/')
+  .get((req, res) => {
+    logger.info('Rota principal OK');
+    console.log('wellcome to my API :D');
+    res.json({ nome: "teste" });
+  });
 
 router.route('/times')
   .get((req, res) => {
     logger.info('Chamada de API de consulta');
     Times.find((err, dados) => {
       if (err) {
+        printErr(err);
         res.send(err);
       }
       res.json(dados);
@@ -40,6 +48,7 @@ router.route('/times')
 
     times.save((err) => {
       if (err) {
+        printErr(err);
         res.send(err);
       }
       res.json({ message: `Time ${req.body.nome} cadastrado com sucesso!` });
@@ -47,41 +56,45 @@ router.route('/times')
   });
 
 router.route('/times/:id')
-.get((req, res) => {
-  logger.info('Chamada de API de consulta por ID');
-  Times.findById(req.params.id, (err, dados) => {
-    if(err){
-      res.send(err);
-    }
-    res.json(dados);
-  });
-})
-
-.put((req, res) => {
-  logger.info('Chamada de API de alteração de time');
-  Times.findById(req.params.id, (err, dados) => {
-    if(err){
-      res.send(err);
-    }
-    dados.nome = req.body.nome;
-    dados.save((err) => {
-      if(err){
+  .get((req, res) => {
+    logger.info('Chamada de API de consulta por ID');
+    Times.findById(req.params.id, (err, dados) => {
+      if (err) {
+        printErr(err);
         res.send(err);
       }
-      res.json({message: `Time id ${req.params.id} atualizado com sucesso para ${req.body.nome}`});
+      res.json(dados);
+    });
+  })
+
+  .put((req, res) => {
+    logger.info('Chamada de API de alteração de time');
+    Times.findById(req.params.id, (err, dados) => {
+      if (err) {
+        printErr(err);
+        res.send(err);
+      }
+      dados.nome = req.body.nome;
+      dados.save((err) => {
+        if (err) {
+          printErr(err);
+          res.send(err);
+        }
+        res.json({ message: `Time id ${req.params.id} atualizado com sucesso para ${req.body.nome}` });
+      });
+    });
+  })
+
+  .delete((req, res) => {
+    logger.info('Chamada de API de exclusão de time');
+    Times.remove({ _id: req.params.id }, (err, dados) => {
+      if (err) {
+        printErr(err);
+        res.send(err);
+      }
+      res.json({ message: `Time id ${req.params.id} excluído com sucesso!` });
     });
   });
-})
-
-.delete((req, res) => {
-  logger.info('Chamada de API de exclusão de time');
-  Times.remove({_id: req.params.id}, (err, dados) => {
-    if(err){
-      res.send(err);
-    }
-    res.json({message: `Time id ${req.params.id} excluído com sucesso!`});
-  });
-});
 
 app.use('/api', router);
 
