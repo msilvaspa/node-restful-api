@@ -1,26 +1,29 @@
-const assert = require('chai');
+const assert = require('chai').assert;
 const request = require('supertest');
 const express = require('express');
 const app = express();
 
 describe('Testes de API', () => {
+  const PREFIX = 'http://localhost:3000';
+  describe(`${PREFIX}/api`, () => {
 
-  describe('/api', () => {
-    it('deve receber objeto com nome "teste"', () => {
-      const expected = { nome: 'teste' };
+    it('deve receber objeto com nome "teste"', (done) => {
+      const expected = { nome: 'teste' },
+      expectedStatus = 200;
 
-      return request(app)
-        .get('/api')
-        .expect(200)
-        .then((res, err) => {
-          if(err){
-            console.log(err);
-          }
+      return request(PREFIX)
+        .get(`/api`)
+        .end((err, res) => {
+          console.log('err: ', err);
+          console.log('status: ', res.status);
+          // assert.equal(res.body, expected);
+          assert.equal(res.status, expectedStatus);
         });
     });
+
   });
 
-  describe('/times', () => {
+  describe(`${PREFIX}/api/times`, () => {
 
     it('deve consultar todos os times', () => {
       console.log('well done');
