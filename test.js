@@ -6,7 +6,7 @@ const app = express();
 describe('Testes de API', () => {
 
   describe('/api', () => {
-    it.only('deve receber objeto com nome "teste"', () => {
+    it('deve receber objeto com nome "teste"', () => {
       const expected = { nome: 'teste' };
 
       return request(app)
