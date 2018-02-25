@@ -1,32 +1,23 @@
-node('node') {
+pipeline {
+    agent any
 
-
-    currentBuild.result = "SUCCESS"
-
-    try {
-
-       stage('Checkout'){
-
-          checkout scm
-       }
-
-       stage('Test'){
-
-         env.NODE_ENV = "test"
-
-         print "Environment will be : ${env.NODE_ENV}"
-
-         sh 'npm install'
-         sh 'npm test'
-
-       }
-
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                echo 'Building..'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'npm test'
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
     }
-    catch (err) {
-
-        currentBuild.result = "FAILURE"
-
-        throw err
-    }
-
 }
