@@ -25,16 +25,15 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "mongoose": "^5.0.6"
+    "mongoose": "^5.0.6",
+    "randomatic": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chalk": "^2.3.1",
-    "jenkins-mocha": "^6.0.0",
     "logger": "0.0.1",
     "mocha": "^5.0.1",
     "mochawesome": "^3.0.2",
-    "mochawesome-report-generator": "^3.1.1",
     "nodemon": "^1.15.0",
     "supertest": "^3.0.0"
   }

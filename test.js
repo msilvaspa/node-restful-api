@@ -1,47 +1,91 @@
 const assert = require('chai').assert;
 const request = require('supertest');
 const express = require('express');
+const chalk = require('chalk');
+const randomize = require('randomatic');
+const MongoClient = require('mongodb').MongoClient;
 const app = express();
+const Times = require('./models/times');
 
-describe('Testes de API', () => {
+const printErr = (err) => {
+  const log = console.log;
+  log(chalk.yellow.bgRed.bold(`${err}`));
+};
+
+describe('Testes de API: ', () => {
   const PREFIX = 'http://localhost:3000';
-  describe(`${PREFIX}/api`, () => {
 
-    it('deve receber objeto com nome "teste"', (done) => {
-      const expected = { nome: 'teste' },
-      expectedStatus = 200;
+  let db;
+
+  before(() => MongoClient.connect('mongodb://localhost:27017/api').then((_db) => db = _db));
+
+  after(() => db.close());
+
+  describe(`${PREFIX}/api: `, () => {
+
+    it('Deve receber objeto com nome "teste"', () => {
+      const expected = { nome: 'teste' };
 
       return request(PREFIX)
         .get(`/api`)
-        .end((err, res) => {
-          console.log('err: ', err);
-          console.log('status: ', res.status);
-          // assert.equal(res.body, expected);
-          assert.equal(res.status, expectedStatus);
-        });
+        .expect(200)
+        .then((res, err) => {
+          assert.equal(res.status, 200);
+          assert.deepEqual(res.body, expected);
+        })
+        .catch((err) => printErr(err));
     });
 
   });
 
-  describe(`${PREFIX}/api/times`, () => {
+  describe(`${PREFIX}/api/times:`, () => {
 
-    it('deve consultar todos os times', () => {
-      console.log('well done');
+    it('Deve consultar todos os times', () => {
+      return request(PREFIX)
+        .get('/api/times')
+        .expect(200)
+        .then(res => console.log(res.body))
+        .catch((err) => printErr(err));
     });
 
-    it('deve cadastrar time', () => {
-      console.log('well done2');
+    it('Deve cadastrar time', () => {
+      const random = randomize('A', 15),
+        expected = `Time ${random} cadastrado com sucesso!`;
+
+      return request(PREFIX)
+        .post('/api/times')
+        .type('form')
+        .send({ nome: `${random}` })
+        .expect(200)
+        .then((res) => assert.deepEqual(res.body.message, expected))
+        .catch((err) => printErr(err));
     });
 
-    it('deve consultar time por ID', () => {
-      console.log('well done3');
+    it.only('Deve consultar time por ID', () => {
+      const random = randomize('A', 15);
+      let id;
+
+      return request(PREFIX)
+        .post('/api/times')
+        .type('form')
+        .send({ nome: `${random}` })
+        .expect(200)
+        .then(() => {
+          return new Promise((resolve, reject) => {
+            db.getCollection('times').find({ nome: `${random}` }).toArray(function (err, result) {
+              if (err) reject(err);
+              resolve(result);
+            });
+          });
+        })
+        .catch((err) => printErr(err));
     });
 
-    it('deve alterar time por ID', () => {
+    it('Deve alterar time por ID', () => {
       console.log('well done4');
     });
 
-    it('deve excluir time por ID', () => {
+    it('Deve excluir time por ID', () => {
       console.log('well done5');
     });
 
